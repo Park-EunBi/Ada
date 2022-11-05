@@ -202,6 +202,7 @@ def run(
 
         # Print time (inference-only)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
+        # Return CrossWalk Detection ** True : detections / False : no detections
         if len(det):
             return True
         else:
