@@ -3,8 +3,8 @@ import time
 start = time.time()
 weight = True
 
-result_bool = run(weights='./best.pt', source='./Test (203).jpg', project='./result', nosave=False)
-
+result_bool = run(weights='./best-fp16.tflite', source='./Test (204).jpg', project='./result', nosave=False)
+print(result_bool)
 '''
 while 1:
     result_bool = run('./best.pt', './Test (204).jpg', project='./result', nosave=True)
