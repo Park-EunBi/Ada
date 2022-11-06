@@ -223,8 +223,8 @@ while True:
         else:
             print(False)
 
-
-    cv2.imshow('frame', frame)
+    img = cv2.imread("C:/Users/User/crosswalk_detection/result/expimg.jpg")
+    cv2.imshow('frame', img)
     if cv2.waitKey(1) == ord('q'):
         break
 
