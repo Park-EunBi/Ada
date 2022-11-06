@@ -70,6 +70,7 @@ source = "C:/Users/User/crosswalk_detection/img.jpg"
 weights = "C:/Users/User/crosswalk_detection/best.pt"
 project = "C:/Users/User/crosswalk_detection/result/"
 data = './data/coco128.yaml'
+txt_filename = "C:/Users/User/crosswalk_detection/result.txt"
 imgsz = (640, 640)  # inference size (height, width)
 conf_thres = 0.25  # confidence threshold
 iou_thres = 0.45  # NMS IOU threshold
@@ -84,7 +85,7 @@ classes = None  # filter by class: --class 0, or --class 0 2 3
 agnostic_nms = False  # class-agnostic NMS
 augment = False  # augmented inference
 visualize = False  # visualize features
-name = 'exp'  # save results to project/name
+name = 'detect.jpg'  # save results to project/name
 exist_ok = False  # existing project/name ok, do not increment
 line_thickness = 3  # bounding box thickness (pixels)
 hide_labels = False  # hide labels
@@ -98,6 +99,8 @@ device = select_device(device)
 model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
 stride, names, pt = model.stride, model.names, model.pt
 imgsz = check_img_size(imgsz, s=stride)  # check image size
+
+file = open(txt_filename, 'w')
 
 while True:
     frame1 = videostream.read()
@@ -113,7 +116,7 @@ while True:
         source = check_file(source)  # download
 
     # Directories
-    save_dir = project + name
+    save_dir = project
 
     # Dataloader
     bs = 1  # batch_size
@@ -160,7 +163,7 @@ while True:
                 p, im0, frame = path, im0s.copy(), getattr(dataset, 'frame', 0)
 
             p = Path(p)  # to Path
-            save_path = save_dir + str(p.name)  # im.jpg
+            save_path = save_dir + name  # im.jpg
             s += '%gx%g ' % im.shape[2:]  # print string
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
             imc = im0.copy() if save_crop else im0  # for save_crop
@@ -219,18 +222,23 @@ while True:
         # Print time (inference-only)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
         if len(det):
-            print(True)
+            file.write('True\n')
         else:
-            print(False)
+            file.write('False\n')
 
-    img = cv2.imread("C:/Users/User/crosswalk_detection/result/expimg.jpg")
+    #file.close()
+    print(project+name)
+    img = cv2.imread(project+name)
     cv2.imshow('frame', img)
     if cv2.waitKey(1) == ord('q'):
         break
 
-# Print results
+# Print resulqts
 t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
+file.write('Done')
+file.close()
 LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *imgsz)}' % t)
+
 if save_txt or save_img:
     s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
     LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}{s}")
