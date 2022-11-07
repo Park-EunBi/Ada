@@ -63,15 +63,12 @@ class VideoStream:
         # Indicate that the camera and thread should be stopped
         self.stopped = True
 
-videostream = VideoStream(resolution=(640,480),framerate=30).start()
-time.sleep(1)
-
-source = "C:/Users/User/crosswalk_detection/img.jpg"
-weights = "C:/Users/User/crosswalk_detection/best.pt"
-project = "C:/Users/User/crosswalk_detection/result/"
+source = "/home/pi/Ada/crosswalk_model/now/img.jpg"
+weights = "/home/pi/Ada/crosswalk_model/best-int8-128.tflite"
+project = "/home/pi/Ada/crosswalk_model/result/"
 data = './data/coco128.yaml'
-txt_filename = "C:/Users/User/crosswalk_detection/result.txt"
-imgsz = (640, 640)  # inference size (height, width)
+txt_filename = "/home/pi/Ada/crosswalk_model/crosswalk_result.txt"
+imgsz = (128, 128)  # inference size (height, width)
 conf_thres = 0.25  # confidence threshold
 iou_thres = 0.45  # NMS IOU threshold
 max_det = 10  # maximum detections per image
@@ -90,23 +87,31 @@ exist_ok = False  # existing project/name ok, do not increment
 line_thickness = 3  # bounding box thickness (pixels)
 hide_labels = False  # hide labels
 hide_conf = False  # hide confidences
-half = False  # use FP16 half-precision inference
+half = True # use FP16 half-precision inference
 dnn = False  # use OpenCV DNN for ONNX inference
 vid_stride = 1
 
+videostream = VideoStream(resolution=imgsz,framerate=30).start()
+time.sleep(1)
+
 # Load model
 device = select_device(device)
-model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
+model = DetectMultiBackend(weights, device=device, fp16=half)
 stride, names, pt = model.stride, model.names, model.pt
 imgsz = check_img_size(imgsz, s=stride)  # check image size
+model.warmup(imgsz=(1 if pt or model.triton else 1, 3, *imgsz))  # warmup
 
 file = open(txt_filename, 'w')
+file.write('start\n')
+file.close()
 
 while True:
+    file = open(txt_filename, 'a')
     frame1 = videostream.read()
     frame = frame1.copy()
-    cv2.imwrite("C:/Users/User/crosswalk_detection/img.jpg", frame)
+    cv2.imwrite(source, frame)
 
+    
     save_img = not nosave and not source.endswith('.txt')  # save inference images
     is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
     is_url = source.lower().startswith(('rtsp://', 'rtmp://', 'http://', 'https://'))
@@ -117,7 +122,8 @@ while True:
 
     # Directories
     save_dir = project
-
+    
+    
     # Dataloader
     bs = 1  # batch_size
     if webcam:
@@ -131,7 +137,7 @@ while True:
     vid_path, vid_writer = [None] * bs, [None] * bs
 
     # Run inference
-    model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
+    #model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
     seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
     for path, im, im0s, vid_cap, s in dataset:
         with dt[0]:
@@ -225,20 +231,18 @@ while True:
             file.write('True\n')
         else:
             file.write('False\n')
+        file.close()
 
-    #file.close()
-    print(project+name)
     img = cv2.imread(project+name)
     cv2.imshow('frame', img)
     if cv2.waitKey(1) == ord('q'):
         break
 
-# Print resulqts
+# Print results
 t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
-file.write('Done')
-file.close()
+#file.write('Done')
+#file.close()
 LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *imgsz)}' % t)
-
 if save_txt or save_img:
     s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
     LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}{s}")
