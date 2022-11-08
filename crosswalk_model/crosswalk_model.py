@@ -1,3 +1,17 @@
+'''
+Crosswalk detected model main file
+
+You must download Yolov5
+--------------How to download YOLOv5----------------
+git clone https://github.com/ultralytics/yolov5.git
+----------------------------------------------------
+
+After downloading, you need to move this file into the YOLOv5 folder.
+
+Edited by Heerae Lee
+9th Nov 2022
+'''
+
 import os
 import sys
 import cv2
@@ -5,12 +19,7 @@ from pathlib import Path
 import time
 from threading import Thread
 import torch
-'''
-txt_filename = "/home/pi/Ada/crosswalk_model/crosswalk_result.txt"
-file = open(txt_filename, 'w')
-file.write('')
-file.close()
-'''
+
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
@@ -65,10 +74,10 @@ class VideoStream:
         # Indicate that the camera and thread should be stopped
         self.stopped = True
 
-source = "/home/pi/Ada/crosswalk_model/now/img.jpg"
-weights = "/home/pi/Ada/crosswalk_model/best-int8-64.tflite"
-project = "/home/pi/Ada/crosswalk_model/result/"
-txt_filename = "/home/pi/Ada/crosswalk_model/crosswalk_result.txt"
+source = "/home/pi/Ada/crosswalk_model/stream/img.jpg"     # image path to detect -> image saved from stream
+weights = "/home/pi/Ada/crosswalk_model/best-int8-64.tflite"    # model weight path
+project = "/home/pi/Ada/crosswalk_model/result/"    # folder path where detection images are saved
+txt_filename = "/home/pi/Ada/crosswalk_model/crosswalk_result.txt"      # txt file path where the detection result is saved
 imgsz = (64, 64)  # inference size (height, width)
 max_det = 10  # maximum detections per image
 device = ''  # cuda device, i.e. 0 or 0,1,2,3 or cpu
@@ -77,27 +86,25 @@ line_thickness = 3  # bounding box thickness (pixels)
 hide_labels = False  # hide labels
 hide_conf = True  # hide confidences
 
+# start video stream
 videostream = VideoStream(resolution=imgsz,framerate=30).start()
 time.sleep(1)
 
 # Load model
 device = select_device(device)
 model = DetectMultiBackend(weights, device=device)
-#stride, names, pt = model.stride, model.names, model.pt
 stride, detect_name, pt = model.stride, 'crosswalk', model.pt
 imgsz = check_img_size(imgsz, s=stride)  # check image size
 model.warmup(imgsz=(1 if pt or model.triton else 1, 3, *imgsz))  # warmup
 
+# After loading the model, save 'start' to a text file
 file = open(txt_filename, 'w')
 file.write(' start\n')
-#print('start')
 file.close()
 
-#global cnt
 cnt=0
 
 while True:
-    #global cnt
     file = open(txt_filename, 'a')
     frame1 = videostream.read()
     frame = frame1.copy()
@@ -132,9 +139,6 @@ while True:
         with dt[2]:
             pred = non_max_suppression(pred, max_det=max_det)
 
-        # Second-stage classifier (optional)
-        # pred = utils.general.apply_classifier(pred, classifier_model, im, im0s)
-
         # Process predictions
         for i, det in enumerate(pred):  # per image
             seen += 1
@@ -161,7 +165,7 @@ while True:
                         label = None if hide_labels else (detect_name if hide_conf else f'{detect_name} {conf:.2f}')
                         annotator.box_label(xyxy, label, color=colors(c, True))
 
-            # Stream results
+            # img results
             im0 = annotator.result()
 
             # Save results (image with detections)
@@ -170,13 +174,12 @@ while True:
 
         # Print time (inference-only)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
-        
+
+        # Add result to txt file
         if len(det):
             file.write(f'True {cnt}\n')
-            #cnt += 1
         else:
             file.write(f'False {cnt}\n')
-            #cnt += 1
         
         file.close()
 
@@ -190,8 +193,6 @@ while True:
 
 # Print results
 t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
-# file.write('Done')
-# file.close()
 LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *imgsz)}' % t)
 if save_img:
     LOGGER.info(f"Results saved to {colorstr('bold', save_dir)} ")
