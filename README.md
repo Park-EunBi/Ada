@@ -3,7 +3,7 @@
 
 > Sensor-based Crosswalk road driving monitoring
 
-![img1](./readme_img/img1.jpg)
+![img1](https://user-images.githubusercontent.com/87464975/200599544-86daf0b5-b62e-4385-b66f-9e61b1b26ec2.JPG)
 
 
 ### 💻 TEAM Ada 💻
@@ -26,7 +26,7 @@
 <small> Source: Report on the results of a survey on the safety status of electric kickboard sharing service </small>
 
 ## 🛴 Monitoring System Architecture
-![img3](./readme_img/img3.jpg)
+![img3](https://user-images.githubusercontent.com/87464975/200599561-e212db8c-65cb-447b-9f88-cb772f1ee3a8.JPG)
 
 
 ## 🛴 Traffic Violation Monitoring Proposals
@@ -37,7 +37,8 @@
 - Using the buzzer sensor inside the scooter, scooter users are warned when driving at the crosswalk
 - Using GPS sensor on the front of the scooter, when a violation is determined user id, location and time infomation are send to the database
 ### Detailed Raspberry Pi process
-![img2](./readme_img/img2.jpg)
+![img2](https://user-images.githubusercontent.com/87464975/200599555-f8f5bd48-5ad8-469d-9e53-7a1684585904.JPG)
+
 
 ## 🛴 Traffic Violation Monitoring web server
 - When the Raspberry Pi detects driving in a crosswalk, it transmits violation information consisting of the occupant ID, its longitude and latitude, and the time of violation to the database
@@ -45,7 +46,8 @@
 - Using mysql and matplotlib, we analyze the violation status by time period, violation status by date, and users with many violations to create a graph
 - Based on the data analysis result, the violation information, and the violation image, a web page was constructed, and the web server was configured using the flask server
 ### Detailed Server operation 
-![img4](./readme_img/img4.jpg)
+
+![img4](https://user-images.githubusercontent.com/87464975/200599566-c08087d2-ecfd-4dd7-8285-7bd55907ced7.JPG)
 
 ## 🛴 Expectation Effectiveness Keypoints 
 ### People - Pedestrian security
