@@ -5,7 +5,12 @@ from pathlib import Path
 import time
 from threading import Thread
 import torch
-
+'''
+txt_filename = "/home/pi/Ada/crosswalk_model/crosswalk_result.txt"
+file = open(txt_filename, 'w')
+file.write('')
+file.close()
+'''
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
@@ -60,11 +65,11 @@ class VideoStream:
         # Indicate that the camera and thread should be stopped
         self.stopped = True
 
-source = "C:/Users/User/crosswalk_detection/img.jpg"
-weights = "C:/Users/User/crosswalk_detection/best.pt"
-project = "C:/Users/User/crosswalk_detection/result/"
-txt_filename = "C:/Users/User/crosswalk_detection/result.txt"
-imgsz = (640, 640)  # inference size (height, width)
+source = "/home/pi/Ada/crosswalk_model/now/img.jpg"
+weights = "/home/pi/Ada/crosswalk_model/best-int8-64.tflite"
+project = "/home/pi/Ada/crosswalk_model/result/"
+txt_filename = "/home/pi/Ada/crosswalk_model/crosswalk_result.txt"
+imgsz = (64, 64)  # inference size (height, width)
 max_det = 10  # maximum detections per image
 device = ''  # cuda device, i.e. 0 or 0,1,2,3 or cpu
 img_name = 'detect.jpg'  # save results to project/name
@@ -81,13 +86,18 @@ model = DetectMultiBackend(weights, device=device)
 #stride, names, pt = model.stride, model.names, model.pt
 stride, detect_name, pt = model.stride, 'crosswalk', model.pt
 imgsz = check_img_size(imgsz, s=stride)  # check image size
-#model.warmup(imgsz=(1 if pt or model.triton else 1, 3, *imgsz))  # warmup
+model.warmup(imgsz=(1 if pt or model.triton else 1, 3, *imgsz))  # warmup
 
 file = open(txt_filename, 'w')
-file.write('start\n')
+file.write(' start\n')
+#print('start')
 file.close()
 
+#global cnt
+cnt=0
+
 while True:
+    #global cnt
     file = open(txt_filename, 'a')
     frame1 = videostream.read()
     frame = frame1.copy()
@@ -104,7 +114,7 @@ while True:
     vid_path, vid_writer = [None] * bs, [None] * bs
 
     # Run inference
-    model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
+    #model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
     seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
     for path, im, im0s, vid_cap, s in dataset:
         with dt[0]:
@@ -160,12 +170,17 @@ while True:
 
         # Print time (inference-only)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
+        
         if len(det):
-            file.write('True\n')
+            file.write(f'True {cnt}\n')
+            #cnt += 1
         else:
-            file.write('False\n')
+            file.write(f'False {cnt}\n')
+            #cnt += 1
+        
         file.close()
 
+    cnt += 1
     img = cv2.imread(project + img_name)
     cv2.imshow('frame', img)
     if cv2.waitKey(1) == ord('q'):
