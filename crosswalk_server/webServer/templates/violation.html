@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/css/bootstrap.min.css">
+    <title>violation</title>
+</head>
+<body>
+    <div class="container">
+        <h3 style="text-align: center; padding-top: 50px;">
+            electric-scooter
+            <small class="text-muted">traffic violation list <br><br>
+            <button type="button" width="600" onclick="location.href='http://localhost/img';" > show violation image </button>
+            <button type="button" width="600" onclick="location.href='http://localhost/graph';" > show violation analysis graph </button></small> <br>
+        </h3>
+        <br>
+    </div>
+    <div align="center">
+        <table>
+            <h1>
+                 {% for table in tables %}
+                <h2>{{titles[loop.index]}}</h2>
+                {{ table|safe }}
+                {% endfor %}
+            </h1>
+        </table>
+    </div>
+</body>
+</html>
