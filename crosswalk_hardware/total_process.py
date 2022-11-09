@@ -1,5 +1,5 @@
 ##################################
-# Determination of electric driving crossing violations
+# Detect driving across a crosswalk on an e-scooter
 #
 # Conditions deemed to be in violation
 # 1) Crosswalk is recognized

@@ -61,6 +61,21 @@
 
 
 
+
+## 📑 Usage
+>You must download [Yolov5](https://github.com/ultralytics/yolov5.git) <br>
+> 
+>After downloading, you need to move <b>crosswalk_model.py</b> into the YOLOv5 folder.
+
+
+Ada/crosswalk_hardware/total_process.py : detect driving across a crosswalk on an e-scooter<br>
+```python3 total_process.py```
+
+Ada/crosswalk_model/yolov5/crosswalk_model.py : Crosswalk detected model main file<br>
+```python3 crosswalk_model.py```
+
+
+
 ## 📑 technology stack
 
 <div align=center> 
