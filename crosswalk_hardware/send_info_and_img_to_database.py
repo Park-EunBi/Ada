@@ -32,7 +32,7 @@ def saveViolationDataToList(violationImg):
     violationDict["dirLon"] = gDirLon
 
     normTime = str(normTime).replace(':', '-')
-    normTime = normTime.replace(' ', '.')
+    normTime = normTime.replace(' ', '+')
     imageName = str(user_id)+'-'+str(normTime)
 
     image = Image.open(violationImg)
